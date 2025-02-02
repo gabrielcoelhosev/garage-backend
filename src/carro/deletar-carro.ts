@@ -1,18 +1,17 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { carros } from "./cadastrar-carro";
+import { prisma } from "./cadastrar-carro";
+
 
 export const DeletarCarro = (app: FastifyInstance) => {
-    app.delete('/carros/:id', (req: FastifyRequest, reply: FastifyReply) => {
+    app.delete('/carros/:id', async (req: FastifyRequest, reply: FastifyReply) => {
 
         const {id} = req.params as {id: string};
-
-        const index = carros.findIndex((c) => c.id === parseInt(id));
-
-
                                         
-        const carroDeletado = carros.splice(index, 1)[0];
+        const carroDeletado = await prisma.carro.delete({
+            where: {id: Number(id)}
+        })
 
-        return reply.status(200).send({message: `O carro  ${carroDeletado.marca} ${carroDeletado.modelo} foi removído com sucésso!`});
 
+        return reply.status(200).send({message: `Carro com o modelo ${carroDeletado} deletado com sucésso!`})
     })
 }

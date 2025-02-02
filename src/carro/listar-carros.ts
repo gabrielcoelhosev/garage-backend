@@ -1,8 +1,11 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { carros } from "./cadastrar-carro";
+import { prisma } from "./cadastrar-carro";
+
 
 export const ListarCarros = (app: FastifyInstance) => {
-    app.get('/carros', (req: FastifyRequest, reply: FastifyReply) => {
+    app.get('/carros', async (req: FastifyRequest, reply: FastifyReply) => {
+        
+        const carros = await prisma.carro.findMany();
         return reply.status(200).send(carros);
     })
 }

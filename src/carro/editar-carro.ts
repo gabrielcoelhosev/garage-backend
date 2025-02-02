@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { carros } from "./cadastrar-carro";
+import { prisma } from "./cadastrar-carro";
+
 
 export const EditarCarro = (app: FastifyInstance) => {
-    app.put('/carros/:id', (req: FastifyRequest, reply: FastifyReply) => {
+    app.put('/carros/:id', async (req: FastifyRequest, reply: FastifyReply) => {
 
         const {id} = req.params as {id: string};
 
@@ -13,14 +14,16 @@ export const EditarCarro = (app: FastifyInstance) => {
             cor: string,
         }
 
-        const carro = carros.find((c) => c.id === parseInt(id));
 
-        if(modelo) carro.modelo = modelo;
-        if(ano) carro.ano = ano;
-        if(marca) carro.marca = marca;
-        if(cor) carro.cor = cor;
-        
-        return reply.status(200).send({message: `Carro atualizado!`});
+        const carroAtualizado = await prisma.carro.update({
+            where: {id: Number(id)},
+            data: {modelo, ano, marca, cor},
+        })
+
+        return reply.status(200).send({
+            message: `Carro atualizado com sucesso para o modelo ${carroAtualizado.modelo}`,
+            carro: carroAtualizado
+        });
 
     })
 }

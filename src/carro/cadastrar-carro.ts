@@ -1,16 +1,11 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify"
+import { PrismaClient } from "@prisma/client";
 
 
-export const carros: any[] = [
-    {id: 1, modelo: "488", ano: 2016, marca: "Ferrari", cor: "Vermelho"},
-    {id: 2, modelo: "Urus", ano: 2024, marca: "Lamborghini", cor: "Amarelo"},
-
-];
-
-let idCounter = 3;
+export const prisma = new PrismaClient();
 
 export const CadastraCarro = (app: FastifyInstance) => {
-    app.post('/carros', (req: FastifyRequest, reply: FastifyReply) => {
+    app.post('/carros', async (req: FastifyRequest, reply: FastifyReply) => {
 
         const {modelo, ano, marca, cor} = req.body as {
             modelo: string,
@@ -19,15 +14,16 @@ export const CadastraCarro = (app: FastifyInstance) => {
             cor: string,
         }
 
-        const novoCarro = {
-            id: idCounter++,
-            modelo,
-            ano,
-            marca,
-            cor
-        }
+        
+        const novoCarro = await prisma.carro.create({
+            data: {
+                modelo,
+                ano,
+                marca,
+                cor,
+            }
+        })
 
-        carros.push(novoCarro);
-        return reply.status(200).send({mesage: `O carro de modelo ${novoCarro.modelo} foi cadastrado com sucésso!`});
+        return reply.status(201).send({message: `O carro de modelo ${novoCarro.modelo} foi cadastrado com sucésso!`})
     })
 }
